@@ -1,5 +1,33 @@
-*.class
-*.log
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# sbt / Scala build
+target/
+project/target/
+project/project/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+.bsp/
+
+
+# MacOS
+.DS_Store
+
+# VSCode (si usas)
+.vscode/
+
+# Metas y caches
+.metals/
+.bloop/
+.cache/
+.history/
+
+# Otros archivos temporales
+*.class
+*.lock
+*.tmp
