@@ -11,3 +11,11 @@ lazy val root = (project in file("."))
 libraryDependencies ++= Seq(
   "org.scalameta" %% "scalameta" % "4.13.5"
 )
+
+val circeVersion = "0.14.13"
+
+libraryDependencies ++= Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)

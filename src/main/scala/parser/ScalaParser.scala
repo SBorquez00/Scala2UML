@@ -1,10 +1,18 @@
 package scalauml
 package parser
 
-import scalauml.models.{AccessModifier, ClassType, MethodUML, FieldUML, ClassUML}
+import scalauml.models.{AccessModifier, ClassType, ClassUML, FieldUML, MethodUML, UMLJsonDocument}
+import scalauml.serializers.UMLJsonDocumentSerializer
 
-import scala.meta._
+import io.circe.{Encoder, Json}
+import io.circe.generic.semiauto.deriveEncoder
+
+import io.circe.syntax.EncoderOps
+import scalauml.serializers.UMLJsonDocumentSerializer.UMLJsonDocumentEncoder
+
+import scala.meta.{io, _}
 import scala.io.{Source => FileSource}
+
 class ScalaParser {
 
   private val fileTest = "data/scala-de-prueba.txt";
@@ -25,7 +33,11 @@ class ScalaParser {
 
     val fieldsUML = getFields(tree)
 
-    println(ClassUML(name, classType, fieldsUML, methodsUML))
+    val classRes = ClassUML(name, classType, fieldsUML, methodsUML)
+    val jsonDocument = UMLJsonDocument(List(classRes))
+    val json = jsonDocument.asJson
+
+    print(json.spaces2)
 
   }
 
