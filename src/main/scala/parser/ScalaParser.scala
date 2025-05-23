@@ -1,15 +1,12 @@
 package scalauml
 package parser
 
-import scalauml.models.{AccessModifier, ClassType, ClassUML, FieldUML, MethodUML, UMLJsonDocument}
-import scalauml.serializers.UMLJsonDocumentSerializer
-
-import io.circe.{Encoder, Json}
-import io.circe.generic.semiauto.deriveEncoder
-
+import scalauml.models.{AccessModifier, ClassType, ClassUML, ClassUMLFactory, FieldUML, MethodUML, UMLJsonDocument}
 import io.circe.syntax.EncoderOps
 import scalauml.serializers.UMLJsonDocumentSerializer.UMLJsonDocumentEncoder
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
 import scala.meta.{io, _}
 import scala.io.{Source => FileSource}
 
@@ -17,28 +14,51 @@ class ScalaParser {
 
   private val fileTest = "data/scala-de-prueba.txt";
 
-  def processOneClassProgram(): Unit = {
+  def processOneFileOfClasses(): Unit = {
     val source = FileSource.fromFile(fileTest)
     val program = source.mkString
     source.close()
 
     val tree = program.parse[Source].get
+    val classObject = getClasses(tree)
 
-    val classObject = getClasses(tree).head
+    val classList = classObject.map(c => {
+       processOneClass(c)
+    })
+
+    val traitObject = getTraits(tree)
+    val traitList = traitObject.map(t => {
+      processOneTrait(t)
+    })
+
+    val umlDocument = UMLJsonDocument(classList ++ traitList)
+    val json = umlDocument.asJson
+    val path = Paths.get("output.json")
+    Files.write(path, json.spaces2.getBytes(StandardCharsets.UTF_8))
+  }
+
+  def processOneClass(classObject: Defn.Class): ClassUML = {
 
     val name = classObject.name.toString()
     val classType = getClassType(classObject)
 
-    val methodsUML = getMethods(tree)
+    val methodsUML = getMethods(classObject)
+    val fieldsUML = getFields(classObject)
 
-    val fieldsUML = getFields(tree)
+    val classRes = ClassUMLFactory.create(name, classType, fieldsUML, methodsUML)
+    classRes
+  }
 
-    val classRes = ClassUML(name, classType, fieldsUML, methodsUML)
-    val jsonDocument = UMLJsonDocument(List(classRes))
-    val json = jsonDocument.asJson
+  def processOneTrait(traitObject: Defn.Trait): ClassUML = {
 
-    print(json.spaces2)
+    val name = traitObject.name.toString()
+    val classType = ClassType.Trait
 
+    val methodsUML = getMethods(traitObject)
+    val fieldsUML = getFields(traitObject)
+
+    val classRes = ClassUMLFactory.create(name, classType, fieldsUML, methodsUML)
+    classRes
   }
 
   private def getClassType(classDef: Defn.Class): ClassType = {
@@ -63,6 +83,13 @@ class ScalaParser {
     classes
   }
 
+  private def getTraits(tree: Tree): List[Defn.Trait] = {
+    val traits = tree.collect {
+      case cls: Defn.Trait => cls
+    }
+    traits
+  }
+
   private def getAccessModifierFromMods(mods: List[Mod]): AccessModifier = {
     val mod = mods match {
       case Nil => AccessModifier.Public
@@ -74,11 +101,15 @@ class ScalaParser {
   }
 
   private def getMethods(tree: Tree): List[MethodUML] = {
-    val methods = tree.collect {
+    val methodsDef = tree.collect {
       case met: Defn.Def => met
     }
 
-    val methodsUML = methods.map(m => {
+    val methodsDecl = tree.collect {
+      case met: Decl.Def => met
+    }
+
+    val methodsUML = methodsDef.map(m => {
       MethodUML(
         name = m.name.toString(),
         domType = m.paramClauseGroups.head.paramClauses.head.values.map(p => p.decltpe.get.toString()),
@@ -90,7 +121,21 @@ class ScalaParser {
         }
       )
     })
-    methodsUML
+
+    val methodsDeclUml = methodsDecl.map(m => {
+      MethodUML(
+        name = m.name.toString(),
+        domType = m.paramClauseGroups.head.paramClauses.head.values.map(p => p.decltpe.get.toString()),
+        codomType = m.decltpe.toString(),
+        visibility = getAccessModifierFromMods(m.mods),
+        isAbstract = m.mods.exists {
+          case Mod.Abstract() => true
+          case _ => false
+        }
+      )
+    })
+
+    methodsUML ++ methodsDeclUml
   }
 
   private def getFields(tree: Tree): List[FieldUML] = {
@@ -105,6 +150,10 @@ class ScalaParser {
         fieldVal.decltpe.toString(),
         getAccessModifierFromMods(fieldVal.mods)
       )
+    }
+
+    if(tree.isInstanceOf[Defn.Trait]){
+      return fieldsDeclared
     }
 
     val ctorFields = tree.collect {
