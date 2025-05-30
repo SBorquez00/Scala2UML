@@ -31,3 +31,7 @@ out/
 *.class
 *.lock
 *.tmp
+
+# Project specific
+data/
+output.json
