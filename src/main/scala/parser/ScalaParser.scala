@@ -3,8 +3,10 @@ package parser
 
 import scalauml.models.{AccessModifier, ClassType, ClassUML, ClassUMLFactory, FieldUML, MethodUML, UMLJsonDocument}
 import io.circe.syntax.EncoderOps
+import io.circe.Json
 import scalauml.serializers.UMLJsonDocumentSerializer.UMLJsonDocumentEncoder
 
+import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import scala.meta.{io, _}
@@ -12,10 +14,10 @@ import scala.io.{Source => FileSource}
 
 class ScalaParser {
 
-  private val fileTest = "data/scala-de-prueba.txt";
+  private val fileTest = new File("data/scala-de-prueba.txt");
 
-  def processOneFileOfClasses(): Unit = {
-    val source = FileSource.fromFile(fileTest)
+  def processOneFileOfClasses(uploadFile: File = fileTest): Json = {
+    val source = FileSource.fromFile(uploadFile)
     val program = source.mkString
     source.close()
 
@@ -35,6 +37,7 @@ class ScalaParser {
     val json = umlDocument.asJson
     val path = Paths.get("output.json")
     Files.write(path, json.spaces2.getBytes(StandardCharsets.UTF_8))
+    return json
   }
 
   def processOneClass(classObject: Defn.Class): ClassUML = {
@@ -156,17 +159,16 @@ class ScalaParser {
       return fieldsDeclared
     }
 
-    val ctorFields = tree.collect {
-      case cto: Ctor.Primary => cto.paramClauses.head.values
-    }.head.map(cf => {
-      FieldUML(
+    val ctorFields: List[FieldUML] = tree.collect {
+      case cto: Ctor.Primary => cto.paramClauses.headOption.toList.flatMap(_.values)
+    }.headOption
+      .getOrElse(Nil)
+      .map(cf => FieldUML(
         name = cf.name.toString(),
-        dataType = cf.decltpe.get.toString(),
-        visibility = getAccessModifierFromMods(
-          cf.mods
-        )
-      )
-    })
+        dataType = cf.decltpe.map(_.toString()).getOrElse("Any"),
+        visibility = getAccessModifierFromMods(cf.mods)
+      ))
+
 
     fieldsDeclared ++ ctorFields
   }

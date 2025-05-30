@@ -9,7 +9,8 @@ lazy val root = (project in file("."))
   )
 
 libraryDependencies ++= Seq(
-  "org.scalameta" %% "scalameta" % "4.13.5"
+  "org.scalameta" %% "scalameta" % "4.13.5",
+  "com.lihaoyi" %% "cask" % "0.9.7"
 )
 
 val circeVersion = "0.14.13"
