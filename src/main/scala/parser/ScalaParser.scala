@@ -35,14 +35,10 @@ class ScalaParser {
     })
 
     val relations = new RelationDetector();
-    val edges = relations.generateInheritanceRelations(classList);
+    val edges = relations.generateRelations(classList ++ traitList);
 
     val umlDocument = UMLJsonDocument(classList ++ traitList, edges)
 
-    for (elemento <- edges){
-      //print(s"Clase ${elemento.name} extiende de ${elemento.parentClassesNames.mkString(", ")}.\n")
-      //print(s"raiz ${elemento.source} y obj ${elemento.target}");
-    }
 
     val json = umlDocument.asJson
     val path = Paths.get("output.json")
