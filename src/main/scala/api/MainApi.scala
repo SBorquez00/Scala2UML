@@ -1,7 +1,7 @@
 package scalauml
 package api
 
-import cask.{get, post, postForm}
+import cask.{get, options, post, postForm}
 import io.circe.Json
 import scalauml.parser.ScalaParser
 import scalauml.utils.JsonInterop.circeToUjson
@@ -18,7 +18,7 @@ object MainApi extends cask.MainRoutes {
 
   // Endpoint POST que recibe un archivo, pero aún no lo procesa
   @postForm("/upload")
-  def upload(file: cask.FormFile): ujson.Value = {
+  def upload(file: cask.FormFile): cask.Response[ujson.Value] = {
     /*val fileName = file.fileName // original filename
     val contentType = file.headers.get("contentType") // MIME type
     val content = new String(file.bytes, "UTF-8") // file content as String
@@ -33,9 +33,33 @@ object MainApi extends cask.MainRoutes {
     val fileTest = file.filePath.get.toFile
 
     val parser = new ScalaParser()
-    circeToUjson(parser.processOneFileOfClasses(fileTest))
+    val jsonAns = circeToUjson(parser.processOneFileOfClasses(fileTest))
+
+    cask.Response(
+      data = jsonAns,
+      statusCode = 200,
+      headers = Seq(
+        "Access-Control-Allow-Origin" -> "http://localhost:3000",
+        "Access-Control-Allow-Headers" -> "*",
+        "Access-Control-Allow-Methods" -> "POST, OPTIONS"
+      )
+    )
 
   }
+
+  @options("/upload")
+  def uploadOptions(): cask.Response[String] = {
+    cask.Response(
+      data = "",
+      statusCode = 200,
+      headers = Seq(
+        "Access-Control-Allow-Origin" -> "http://localhost:3000",
+        "Access-Control-Allow-Headers" -> "*",
+        "Access-Control-Allow-Methods" -> "POST, OPTIONS"
+      )
+    )
+  }
+
 
   initialize()
 }

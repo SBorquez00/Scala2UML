@@ -1,10 +1,11 @@
 package scalauml
 package parser
 
-import scalauml.models.{AccessModifier, ClassType, ClassUML, ClassUMLFactory, FieldUML, MethodUML, UMLJsonDocument}
+import scalauml.models.{AccessModifier, ClassType, ClassUML, ClassUMLFactory, FieldUML, MethodUML, RelationUML,UMLJsonDocument}
 import io.circe.syntax.EncoderOps
 import io.circe.Json
 import scalauml.serializers.UMLJsonDocumentSerializer.UMLJsonDocumentEncoder
+import scalauml.analyzer.RelationDetector
 
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -33,7 +34,16 @@ class ScalaParser {
       processOneTrait(t)
     })
 
-    val umlDocument = UMLJsonDocument(classList ++ traitList)
+    val relations = new RelationDetector();
+    val edges = relations.generateInheritanceRelations(classList);
+
+    val umlDocument = UMLJsonDocument(classList ++ traitList, edges)
+
+    for (elemento <- edges){
+      //print(s"Clase ${elemento.name} extiende de ${elemento.parentClassesNames.mkString(", ")}.\n")
+      //print(s"raiz ${elemento.source} y obj ${elemento.target}");
+    }
+
     val json = umlDocument.asJson
     val path = Paths.get("output.json")
     Files.write(path, json.spaces2.getBytes(StandardCharsets.UTF_8))
@@ -48,7 +58,9 @@ class ScalaParser {
     val methodsUML = getMethods(classObject)
     val fieldsUML = getFields(classObject)
 
-    val classRes = ClassUMLFactory.create(name, classType, fieldsUML, methodsUML)
+    val parentClasses = getParentClasses(classObject)
+
+    val classRes = ClassUMLFactory.create(name, classType, fieldsUML, methodsUML, parentClasses)
     classRes
   }
 
@@ -60,7 +72,9 @@ class ScalaParser {
     val methodsUML = getMethods(traitObject)
     val fieldsUML = getFields(traitObject)
 
-    val classRes = ClassUMLFactory.create(name, classType, fieldsUML, methodsUML)
+    val parentClasses = getParentClasses(traitObject)
+
+    val classRes = ClassUMLFactory.create(name, classType, fieldsUML, methodsUML, parentClasses)
     classRes
   }
 
@@ -171,6 +185,14 @@ class ScalaParser {
 
 
     fieldsDeclared ++ ctorFields
+  }
+
+  def getParentClasses(tree: Tree): List[String] = {
+
+    val parent = tree.collect{
+      case extended: Init => extended.text
+    }
+    parent
   }
 
 }

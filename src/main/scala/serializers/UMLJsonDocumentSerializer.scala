@@ -14,6 +14,9 @@ object UMLJsonDocumentSerializer {
   implicit val accessModifierEncoder: Encoder[AccessModifier] =
     Encoder.encodeString.contramap(_.value)
 
+  implicit val relationType: Encoder[RelationType] =
+    Encoder.encodeString.contramap(_.value)
+
   implicit val methodUMLEncoder: Encoder[MethodUML] =
     Encoder.instance { m =>
       Json.obj(
@@ -46,6 +49,18 @@ object UMLJsonDocumentSerializer {
         "y" -> Json.fromDoubleOrString(c.yCord)
       )
     }
+
+  implicit val RelationUMLEncoder: Encoder[RelationUML] =
+    Encoder.instance{e =>
+      Json.obj(
+        "source" -> Json.fromString(e.source.toString()),
+        "target" -> Json.fromString(e.target.toString()),
+        "sourceHandle" -> Json.fromString(e.sourceHandle),
+        "targetHandle" -> Json.fromString(e.targetHandle),
+        "type" -> e.relationType.asJson
+      )
+    }
+
 
   implicit val UMLJsonDocumentEncoder: Encoder[UMLJsonDocument] = deriveEncoder
 }
