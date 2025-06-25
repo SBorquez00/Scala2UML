@@ -200,7 +200,14 @@ class ScalaParser {
 
   def getBaseType(param: Type): String = {
     param match {
-      case apply: Type.Apply => getBaseType(apply.argClause.head)
+      case apply: Type.Apply => {
+        if(apply.tpe.toString() == "Map"){
+          getBaseType(apply.argClause.values(1))
+        }
+        else{
+          getBaseType(apply.argClause.head)
+        }
+      }
       case _ => param.toString()
     }
   }
