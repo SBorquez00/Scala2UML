@@ -22,11 +22,11 @@ class RelationDetector
 
     nodes.flatMap { nodo =>
       nodo.methods.flatMap { metodo =>
-        val relCodom = mapaNodos.get(metodo.codomType)
+        val relCodom = mapaNodos.get(metodo.codomBaseType)
                         .map { destino =>
                           newRelation(nodo.id, destino.id, RelationType.Association)
                         }
-        val relDom = metodo.domType.flatMap { param =>
+        val relDom = metodo.domBaseType.flatMap { param =>
                       mapaNodos.get(param)
                         .map { destino =>
                           newRelation(nodo.id, destino.id, RelationType.Association)
@@ -41,7 +41,7 @@ class RelationDetector
 
     nodes.flatMap { nodo =>
         nodo.fields.flatMap { nombreDestino =>
-          mapaNodos.get(nombreDestino.dataType)
+          mapaNodos.get(nombreDestino.baseType)
             .map { destino =>
               newRelation(nodo.id, destino.id, RelationType.Aggregation)
             }

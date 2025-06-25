@@ -126,7 +126,9 @@ class ScalaParser {
       MethodUML(
         name = m.name.toString(),
         domType = m.paramClauseGroups.head.paramClauses.head.values.map(p => p.decltpe.get.toString()),
+        domBaseType = m.paramClauseGroups.head.paramClauses.head.values.map(p => getBaseType(p.decltpe.get)),
         codomType = m.decltpe.get.toString(),
+        codomBaseType = getBaseType(m.decltpe.get),
         visibility = getAccessModifierFromMods(m.mods),
         isAbstract = m.mods.exists {
           case Mod.Abstract() => true
@@ -139,7 +141,9 @@ class ScalaParser {
       MethodUML(
         name = m.name.toString(),
         domType = m.paramClauseGroups.head.paramClauses.head.values.map(p => p.decltpe.get.toString()),
+        domBaseType = m.paramClauseGroups.head.paramClauses.head.values.map(p => getBaseType(p.decltpe.get)),
         codomType = m.decltpe.toString(),
+        codomBaseType = getBaseType(m.decltpe),
         visibility = getAccessModifierFromMods(m.mods),
         isAbstract = m.mods.exists {
           case Mod.Abstract() => true
@@ -156,11 +160,13 @@ class ScalaParser {
       case fieldVar: Decl.Var => FieldUML(
         fieldVar.pats.head.text,
         fieldVar.decltpe.toString(),
+        getBaseType(fieldVar.decltpe),
         getAccessModifierFromMods(fieldVar.mods)
       )
       case fieldVal: Decl.Val => FieldUML(
         fieldVal.pats.head.text,
         fieldVal.decltpe.toString(),
+        getBaseType(fieldVal.decltpe),
         getAccessModifierFromMods(fieldVal.mods)
       )
     }
@@ -176,6 +182,7 @@ class ScalaParser {
       .map(cf => FieldUML(
         name = cf.name.toString(),
         dataType = cf.decltpe.map(_.toString()).getOrElse("Any"),
+        baseType = cf.decltpe.map(getBaseType(_)).getOrElse("Any"),
         visibility = getAccessModifierFromMods(cf.mods)
       ))
 
@@ -189,6 +196,13 @@ class ScalaParser {
       case extended: Init => extended.text
     }
     parent
+  }
+
+  def getBaseType(param: Type): String = {
+    param match {
+      case apply: Type.Apply => getBaseType(apply.argClause.head)
+      case _ => param.toString()
+    }
   }
 
 }
