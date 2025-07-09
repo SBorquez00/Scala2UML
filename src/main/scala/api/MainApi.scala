@@ -6,6 +6,7 @@ import io.circe.Json
 import scalauml.parser.ScalaParser
 import scalauml.utils.JsonInterop.circeToUjson
 
+import java.nio.file.Files
 import scala.io.{Source => FileSource}
 
 object MainApi extends cask.MainRoutes {
@@ -19,16 +20,6 @@ object MainApi extends cask.MainRoutes {
   // Endpoint POST que recibe un archivo, pero aún no lo procesa
   @postForm("/upload")
   def upload(file: cask.FormFile): cask.Response[ujson.Value] = {
-    /*val fileName = file.fileName // original filename
-    val contentType = file.headers.get("contentType") // MIME type
-    val content = new String(file.bytes, "UTF-8") // file content as String
-
-    ujson.Obj(
-      "status" -> "ok",
-      "fileName" -> fileName,
-      "contentType" -> contentType,
-      "contentLength" -> content.length
-    )*/
 
     val fileTest = file.filePath.get.toFile
 

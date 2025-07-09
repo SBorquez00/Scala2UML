@@ -40,7 +40,7 @@ object UMLJsonDocumentSerializer {
   implicit val ClassUMLEncoder: Encoder[ClassUML] =
     Encoder.instance{c =>
       Json.obj(
-        "id" -> Json.fromInt(c.id),
+        "id" -> Json.fromString(c.id.toString),
         "name" -> Json.fromString(c.name),
         "classType" -> c.classType.asJson,
         "methods" -> c.methods.asJson,

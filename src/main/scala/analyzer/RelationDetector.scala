@@ -69,7 +69,7 @@ class RelationDetector
       .flatMap { nodo =>
       nodo.parentClassesNames.flatMap { nombreDestino =>
         mapaNodos.get(nombreDestino)
-          .filter(dest => dest.classType != ClassType.Trait)
+          .filterNot(dest => (dest.classType == ClassType.Trait) && nodo.classType != ClassType.Trait)
           .map { destino =>
           newRelation(nodo.id, destino.id, RelationType.Inheritance)
         }
