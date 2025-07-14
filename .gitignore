@@ -34,4 +34,4 @@ out/
 
 # Project specific
 data/
-output.json
+/output.json

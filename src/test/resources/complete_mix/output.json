@@ -1,0 +1,209 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Animal",
+      "classType": "concreteClass",
+      "methods": [
+        {
+          "name": "alimentar",
+          "domType": [],
+          "codType": "Unit",
+          "visibility": "public",
+          "abstract": false
+        },
+        {
+          "name": "truco",
+          "domType": [
+            "String",
+            "String",
+            "Double"
+          ],
+          "codType": "Boolean",
+          "visibility": "private",
+          "abstract": false
+        },
+        {
+          "name": "isIn",
+          "domType": [
+            "List[Rancho]"
+          ],
+          "codType": "Boolean",
+          "visibility": "public",
+          "abstract": false
+        }
+      ],
+      "fields": [
+        {
+          "name": "peso",
+          "type": "Double",
+          "visibility": "protected"
+        },
+        {
+          "name": "especie",
+          "type": "String",
+          "visibility": "public"
+        },
+        {
+          "name": "Nombre",
+          "type": "String",
+          "visibility": "public"
+        },
+        {
+          "name": "Edad",
+          "type": "Int",
+          "visibility": "public"
+        }
+      ],
+      "x": 50,
+      "y": 50
+    },
+    {
+      "id": "2",
+      "name": "SerVivo",
+      "classType": "trait",
+      "methods": [
+        {
+          "name": "alimentar",
+          "domType": [],
+          "codType": "Unit",
+          "visibility": "public",
+          "abstract": true
+        }
+      ],
+      "fields": [
+        {
+          "name": "name",
+          "type": "String",
+          "visibility": "public"
+        }
+      ],
+      "x": 250,
+      "y": 250
+    },
+    {
+      "id": "3",
+      "name": "Vaca",
+      "classType": "concreteClass",
+      "methods": [
+        {
+          "name": "ordeñar",
+          "domType": [],
+          "codType": "Unit",
+          "visibility": "public",
+          "abstract": false
+        }
+      ],
+      "fields": [],
+      "x": 150,
+      "y": 150
+    },
+    {
+      "id": "4",
+      "name": "Rancho",
+      "classType": "concreteClass",
+      "methods": [
+        {
+          "name": "GetUbicacion",
+          "domType": [],
+          "codType": "(String, String)",
+          "visibility": "public",
+          "abstract": false
+        }
+      ],
+      "fields": [
+        {
+          "name": "xCod",
+          "type": "Any",
+          "visibility": "private"
+        },
+        {
+          "name": "yCod",
+          "type": "Any",
+          "visibility": "private"
+        },
+        {
+          "name": "Nombre",
+          "type": "String",
+          "visibility": "public"
+        },
+        {
+          "name": "residentes",
+          "type": "Map[Int, Animal]",
+          "visibility": "public"
+        }
+      ],
+      "x": 200,
+      "y": 200
+    },
+    {
+      "id": "5",
+      "name": "Perro",
+      "classType": "concreteClass",
+      "methods": [
+        {
+          "name": "ladrar",
+          "domType": [],
+          "codType": "Unit",
+          "visibility": "public",
+          "abstract": false
+        },
+        {
+          "name": "validate",
+          "domType": [
+            "String"
+          ],
+          "codType": "Boolean",
+          "visibility": "public",
+          "abstract": false
+        }
+      ],
+      "fields": [
+        {
+          "name": "chipCode",
+          "type": "String",
+          "visibility": "private"
+        }
+      ],
+      "x": 100,
+      "y": 100
+    }
+  ],
+  "edges": [
+    {
+      "source": "5",
+      "target": "1",
+      "sourceHandle": "top-handle-2",
+      "targetHandle": "bottom-handle-2",
+      "type": "inheritance"
+    },
+    {
+      "source": "3",
+      "target": "1",
+      "sourceHandle": "top-handle-2",
+      "targetHandle": "bottom-handle-2",
+      "type": "inheritance"
+    },
+    {
+      "source": "1",
+      "target": "2",
+      "sourceHandle": "bottom-handle-2",
+      "targetHandle": "top-handle-2",
+      "type": "implementation"
+    },
+    {
+      "source": "4",
+      "target": "1",
+      "sourceHandle": "left-handle-3",
+      "targetHandle": "right-handle-3",
+      "type": "aggregation"
+    },
+    {
+      "source": "1",
+      "target": "4",
+      "sourceHandle": "right-handle-1",
+      "targetHandle": "left-handle-1",
+      "type": "association"
+    }
+  ]
+}

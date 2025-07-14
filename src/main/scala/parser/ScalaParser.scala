@@ -18,8 +18,8 @@ class ScalaParser {
 
   private val fileTest = new File("data/scala-de-prueba.txt");
 
-  /*def processASetOfFiles(): Json = {
-    val carpeta = new File("data/pruebas")
+  def processASetOfFiles(): Json = {
+    val carpeta = new File("src/main/scala")
 
     var res: List[ClassUML] = List()
 
@@ -27,7 +27,7 @@ class ScalaParser {
       val archivos = FileUtils.listAllFiles(carpeta)
 
       res = archivos.flatMap { file =>
-        processOneFileOfClasses(file)
+        classesFromFile(file)
       }
     }
     val relations = new RelationDetector();
@@ -41,9 +41,30 @@ class ScalaParser {
     Files.write(path, json.spaces2.getBytes(StandardCharsets.UTF_8))
     json
 
-  }*/
+  }
 
-  def processOneFileOfClasses(uploadFile: File = fileTest): Json = {
+  def classesFromFile(uploadFile: File = fileTest): List[ClassUML] = {
+    val source = FileSource.fromFile(uploadFile)
+    val program = source.mkString
+    source.close()
+
+    val tree = program.parse[Source].get
+    val classObject = getClasses(tree)
+
+    val classList = classObject.map(c => {
+      processOneClass(c)
+    })
+
+    val traitObject = getTraits(tree)
+    val traitList = traitObject.map(t => {
+      processOneTrait(t)
+    })
+
+    classList ++ traitList
+  }
+
+
+    def processOneFileOfClasses(uploadFile: File = fileTest): Json = {
     val source = FileSource.fromFile(uploadFile)
     val program = source.mkString
     source.close()
@@ -60,7 +81,7 @@ class ScalaParser {
       processOneTrait(t)
     })
 
-    classList ++ traitList
+    //classList ++ traitList
 
     val relations = new RelationDetector();
     val edges = relations.generateRelations(classList ++ traitList);
@@ -77,6 +98,7 @@ class ScalaParser {
   def processOneClass(classObject: Defn.Class): ClassUML = {
 
     val name = classObject.name.toString()
+
     val classType = getClassType(classObject)
 
     val methodsUML = getMethods(classObject)
@@ -184,31 +206,11 @@ class ScalaParser {
   }
 
   private def getFields(tree: Tree): List[FieldUML] = {
-    val fieldsDeclared = tree.collect {
-      case fieldVar: Decl.Var => FieldUML(
-        fieldVar.pats.head.text,
-        fieldVar.decltpe.toString(),
-        getBaseType(fieldVar.decltpe),
-        getAccessModifierFromMods(fieldVar.mods)
-      )
-      case fieldVal: Decl.Val => FieldUML(
-        fieldVal.pats.head.text,
-        fieldVal.decltpe.toString(),
-        getBaseType(fieldVal.decltpe),
-        getAccessModifierFromMods(fieldVal.mods)
-      )
-      case fieldVar: Defn.Var => FieldUML(
-        fieldVar.pats.head.text,
-        fieldVar.decltpe.getOrElse(t"Any").toString(),
-        getBaseType(fieldVar.decltpe.getOrElse(t"Any")),
-        getAccessModifierFromMods(fieldVar.mods)
-      )
-      case fieldVal: Defn.Val => FieldUML(
-        fieldVal.pats.head.text,
-        fieldVal.decltpe.getOrElse(t"Any").toString(),
-        getBaseType(fieldVal.decltpe.getOrElse(t"Any")),
-        getAccessModifierFromMods(fieldVal.mods)
-      )
+
+    val fieldsDeclared = tree match{
+      case cls: Defn.Class => processField(cls.templ)
+      case tr: Defn.Trait => processField(tr.templ)
+      case _ => Nil
     }
 
     if(tree.isInstanceOf[Defn.Trait]){
@@ -230,11 +232,49 @@ class ScalaParser {
     fieldsDeclared ++ ctorFields
   }
 
+  def processField(t: Template): List[FieldUML] = {
+    t.body.children
+      .collect {
+        case fieldVar: Decl.Var => FieldUML(
+          fieldVar.pats.head.text,
+          fieldVar.decltpe.toString(),
+          getBaseType(fieldVar.decltpe),
+          getAccessModifierFromMods(fieldVar.mods)
+        )
+        case fieldVal: Decl.Val => FieldUML(
+          fieldVal.pats.head.text,
+          fieldVal.decltpe.toString(),
+          getBaseType(fieldVal.decltpe),
+          getAccessModifierFromMods(fieldVal.mods)
+        )
+        case fieldVar: Defn.Var => FieldUML(
+          fieldVar.pats.head.text,
+          fieldVar.decltpe.getOrElse(t"Any").toString(),
+          getBaseType(fieldVar.decltpe.getOrElse(t"Any")),
+          getAccessModifierFromMods(fieldVar.mods)
+        )
+        case fieldVal: Defn.Val => FieldUML(
+          fieldVal.pats.head.text,
+          fieldVal.decltpe.getOrElse(t"Any").toString(),
+          getBaseType(fieldVal.decltpe.getOrElse(t"Any")),
+          getAccessModifierFromMods(fieldVal.mods)
+        )
+      }
+  }
+
   def getParentClasses(tree: Tree): List[String] = {
 
-    val parent = tree.collect{
-      case extended: Init => extended.tpe.toString()
+    val parent = tree match{
+      case c: Defn.Class
+      => c.templ.children.collect {
+            case extended: Init => extended.tpe.toString()
+          }
+      case t: Defn.Trait
+      => t.templ.children.collect {
+            case extended: Init => extended.tpe.toString()
+          }
     }
+
     parent
   }
 

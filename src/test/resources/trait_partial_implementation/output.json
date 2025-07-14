@@ -1,0 +1,47 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "SerVivo",
+      "classType": "trait",
+      "methods": [
+        {
+          "name": "energia",
+          "domType": [],
+          "codType": "Int",
+          "visibility": "public",
+          "abstract": true
+        },
+        {
+          "name": "energia_",
+          "domType": [
+            "Int"
+          ],
+          "codType": "",
+          "visibility": "public",
+          "abstract": true
+        },
+        {
+          "name": "alimentarse",
+          "domType": [],
+          "codType": "",
+          "visibility": "public",
+          "abstract": true
+        },
+        {
+          "name": "usarEnergia",
+          "domType": [
+            "Int"
+          ],
+          "codType": "",
+          "visibility": "public",
+          "abstract": false
+        }
+      ],
+      "fields": [],
+      "x": 711.9211846937583,
+      "y": 169.37931714252318
+    }
+  ],
+  "edges": []
+}
