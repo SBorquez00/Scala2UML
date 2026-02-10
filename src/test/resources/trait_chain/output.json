@@ -1,0 +1,63 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "SerVivo",
+      "classType": "trait",
+      "methods": [
+        {
+          "name": "usaEnergia",
+          "domType": [
+            "Int"
+          ],
+          "codType": "",
+          "visibility": "public",
+          "abstract": true
+        }
+      ],
+      "fields": [
+        {
+          "name": "nombre",
+          "type": "String",
+          "visibility": "public"
+        }
+      ],
+      "x": 300,
+      "y": 150
+    },
+    {
+      "id": "2",
+      "name": "Animal",
+      "classType": "trait",
+      "methods": [
+        {
+          "name": "moverse",
+          "domType": [
+            "Double"
+          ],
+          "codType": "",
+          "visibility": "public",
+          "abstract": true
+        }
+      ],
+      "fields": [
+        {
+          "name": "esCarnivoro",
+          "type": "Boolean",
+          "visibility": "public"
+        }
+      ],
+      "x": 327.46018023052477,
+      "y": 436.19512060735417
+    }
+  ],
+  "edges": [
+    {
+      "source": "2",
+      "target": "1",
+      "sourceHandle": "top-handle-2",
+      "targetHandle": "bottom-handle-2",
+      "type": "inheritance"
+    }
+  ]
+}

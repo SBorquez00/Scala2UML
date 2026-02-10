@@ -1,0 +1,48 @@
+{
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Usuario",
+      "classType": "concreteClass",
+      "methods": [
+        {
+          "name": "mostrarResumen",
+          "domType": [],
+          "codType": "String",
+          "visibility": "public",
+          "abstract": false
+        }
+      ],
+      "fields": [
+        {
+          "name": "nombre",
+          "type": "String",
+          "visibility": "public"
+        },
+        {
+          "name": "correo",
+          "type": "Option[String]",
+          "visibility": "public"
+        },
+        {
+          "name": "telefonos",
+          "type": "List[String]",
+          "visibility": "public"
+        },
+        {
+          "name": "preferencias",
+          "type": "Map[String, String]",
+          "visibility": "public"
+        },
+        {
+          "name": "empresa",
+          "type": "Option[String]",
+          "visibility": "public"
+        }
+      ],
+      "x": 300,
+      "y": 105
+    }
+  ],
+  "edges": []
+}
